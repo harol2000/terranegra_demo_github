@@ -39,25 +39,21 @@ npm run dev
 npm run build
 ```
 
-Para publicar en GitHub Pages con la rama `gh-pages`:
-
-```bash
-npm run deploy
-```
-
 ## Cómo publicar en GitHub Pages
 
-1. Sube este proyecto a un repositorio llamado `terranegra_demo_github`.
+1. Sube este proyecto al repositorio `harol2000/terranegra_demo_github`.
 2. Verifica que en `vite.config.js` el valor `base` siga siendo `/terranegra_demo_github/`.
-3. Ejecuta:
+3. Ejecuta localmente:
 
 ```bash
 npm install
-npm run deploy
+npm run build
 ```
 
-4. En GitHub, revisa que Pages esté configurado para publicar desde la rama `gh-pages`.
-5. Espera unos minutos y abre la URL pública del repositorio.
+4. Haz `push` a la rama `main`.
+5. El workflow de GitHub Actions compilará la app y publicará `dist` en GitHub Pages.
+6. En GitHub, revisa que Pages esté configurado para usar `GitHub Actions`.
+7. Espera unos minutos y abre la URL pública del repositorio.
 
 ## Datos y comportamiento
 
