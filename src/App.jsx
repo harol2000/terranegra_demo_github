@@ -166,22 +166,34 @@ function StaffGuard() {
 
 function PublicLayout() {
   const { currentUser, session, cartItems, logout, state } = useDemo()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const cartCount = cartItems.reduce((accumulator, item) => accumulator + item.quantity, 0)
+  const accountPath = session ? getRouteForRole(session.role) : '/login'
+  const accountLabel = session
+    ? session.role === 'customer'
+      ? 'Mi cuenta'
+      : 'Panel'
+    : 'Login demo'
+
+  function handleLogout() {
+    setIsMobileMenuOpen(false)
+    logout()
+  }
 
   return (
     <div className="app-shell">
       <div className="top-banner">
         <div className="container top-banner__content">
-          <span>Demo estática lista para GitHub Pages</span>
-          <span>Pedidos, inventario y kardex funcionan con localStorage</span>
+          <span>Demo interactiva Terranegra</span>
+          <span>Datos simulados con localStorage</span>
         </div>
       </div>
 
       <header className="site-header">
         <div className="container site-header__inner">
-          <Link to="/" className="brand-lockup">
+          <Link to="/" className="brand-lockup brand-lockup--header">
             <div className="brand-mark">TN</div>
-            <div>
+            <div className="brand-copy">
               <strong>{state.businessName}</strong>
               <span>Demo de tienda + panel vendedor</span>
             </div>
@@ -206,8 +218,8 @@ function PublicLayout() {
                 <Link to={getRouteForRole(session.role)} className="button secondary">
                   {session.role === 'customer' ? 'Mi cuenta' : 'Panel'}
                 </Link>
-                <button type="button" className="button ghost" onClick={logout}>
-                  Cerrar sesión
+                <button type="button" className="button ghost" onClick={handleLogout}>
+                  Cerrar sesion
                 </button>
               </>
             ) : (
@@ -216,14 +228,83 @@ function PublicLayout() {
               </Link>
             )}
           </div>
+
+          <div className="site-mobile-actions">
+            <Link to="/carrito" className="button ghost small site-cart-button">
+              <span>Carrito</span>
+              <span className="counter-badge">{cartCount}</span>
+            </Link>
+            <button
+              type="button"
+              className={`mobile-menu-toggle ${isMobileMenuOpen ? 'is-open' : ''}`}
+              aria-expanded={isMobileMenuOpen}
+              aria-label={isMobileMenuOpen ? 'Cerrar menu' : 'Abrir menu'}
+              onClick={() => setIsMobileMenuOpen((current) => !current)}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
         </div>
+
+        {isMobileMenuOpen ? (
+          <div className="site-mobile-menu">
+            <div className="container">
+              <div className="site-mobile-menu__panel">
+                <nav className="site-mobile-menu__nav">
+                  {PUBLIC_LINKS.map((link) => (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      end={link.to === '/'}
+                      className="site-mobile-link"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </NavLink>
+                  ))}
+
+                  <NavLink
+                    to="/carrito"
+                    className="site-mobile-link"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span>Carrito</span>
+                    <span className="counter-badge">{cartCount}</span>
+                  </NavLink>
+
+                  <NavLink
+                    to={accountPath}
+                    className="site-mobile-link site-mobile-link--accent"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {accountLabel}
+                  </NavLink>
+                </nav>
+
+                {session ? (
+                  <div className="site-mobile-menu__footer">
+                    <div className="site-mobile-menu__session">
+                      <strong>{currentUser?.name}</strong>
+                      <span>{getRoleLabel(currentUser?.role ?? 'customer')}</span>
+                    </div>
+                    <button type="button" className="button ghost small" onClick={handleLogout}>
+                      Cerrar sesion
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </header>
 
       {currentUser ? (
         <div className="container">
           <div className="welcome-strip">
             <span>
-              Sesión activa: <strong>{currentUser.name}</strong>
+              Sesion activa: <strong>{currentUser.name}</strong>
             </span>
             <span>{getRoleLabel(currentUser.role)}</span>
           </div>
@@ -245,7 +326,7 @@ function PublicLayout() {
               </div>
             </div>
             <p>
-              Esta versión es una maqueta navegable para validar flujos de tienda web, pedidos,
+              Esta version es una maqueta navegable para validar flujos de tienda web, pedidos,
               inventario, kardex y panel vendedor.
             </p>
           </div>
@@ -254,7 +335,7 @@ function PublicLayout() {
             <h3>Canales demo</h3>
             <p>WhatsApp: +{state.config.whatsapp}</p>
             <p>Yape: {state.config.yapeNumber}</p>
-            <p>Dirección: {state.config.address}</p>
+            <p>Direccion: {state.config.address}</p>
           </div>
 
           <div>
@@ -281,17 +362,18 @@ function HomePage() {
         <div className="container hero-grid">
           <div className="hero-copy">
             <span className="eyebrow">Terranegra Demo</span>
-            <h1>Tienda web, ventas y control operativo en una sola experiencia demostrable.</h1>
-            <p>
-              Esta demo simula cómo funcionaría la tienda de Terranegra con catálogo, checkout por
-              WhatsApp, panel cliente, panel vendedor, inventario, lotes y kardex.
+            <h1>Terranegra</h1>
+            <p className="hero-tagline">Tienda demo + inventario + kardex</p>
+            <p className="hero-description">
+              Explora la tienda, inicia sesion como cliente o vendedor y prueba pedidos,
+              inventario, lotes y kardex con datos simulados.
             </p>
             <div className="hero-actions">
               <Link to="/tienda" className="button">
-                Explorar tienda
+                Ver tienda
               </Link>
               <Link to="/login" className="button secondary">
-                Probar login demo
+                Login demo
               </Link>
             </div>
 
@@ -760,13 +842,23 @@ function LoginPage() {
     }
   }
 
+  function handleQuickAccess(credential) {
+    setEmail(credential.email)
+    setPassword(credential.password)
+
+    const result = login(credential.email, credential.password)
+    if (result.ok) {
+      navigate(getRouteForRole(result.role), { replace: true })
+    }
+  }
+
   return (
     <section className="section-block">
       <div className="container login-layout">
-        <div className="surface-card">
+        <div className="surface-card login-card">
           <SectionHeading
             title="Login simulado"
-            subtitle="La autenticación es local y se guarda en localStorage."
+            subtitle="La autenticacion es local y se guarda en localStorage."
           />
           <form className="form-grid" onSubmit={handleSubmit}>
             <div className="field">
@@ -786,17 +878,43 @@ function LoginPage() {
               Ingresar a la demo
             </button>
           </form>
+
+          <div className="login-quick-actions">
+            <span className="login-quick-actions__label">Accesos rapidos</span>
+            <div className="login-quick-actions__grid">
+              {DEMO_CREDENTIALS.map((credential) => (
+                <button
+                  key={credential.email}
+                  type="button"
+                  className="button ghost small login-quick-actions__button"
+                  onClick={() => handleQuickAccess(credential)}
+                >
+                  {`Entrar como ${credential.role.toLowerCase()}`}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="credential-grid">
-          {DEMO_CREDENTIALS.map((credential) => (
-            <article key={credential.email} className="surface-card">
-              <span className="pill">{credential.role}</span>
-              <h3>{credential.email}</h3>
-              <p>Password: {credential.password}</p>
-              <p>Ruta esperada: {credential.route}</p>
-            </article>
-          ))}
+          <article className="surface-card login-info-card">
+            <span className="pill">Usuarios demo</span>
+            <p className="login-info-card__copy">
+              Puedes iniciar sesion con cualquiera de estos perfiles para probar la tienda o el
+              panel vendedor.
+            </p>
+            <div className="credential-list">
+              {DEMO_CREDENTIALS.map((credential) => (
+                <article key={credential.email} className="credential-line">
+                  <div>
+                    <strong>{credential.role}</strong>
+                    <p>{credential.email}</p>
+                  </div>
+                  <span>{credential.password}</span>
+                </article>
+              ))}
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -909,6 +1027,7 @@ function AccountPage({ focusOrders = false }) {
 function PanelLayout() {
   const { state, currentUser, logout } = useDemo()
   const location = useLocation()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const pendingOrders = countPendingOrders(state.orders)
   const paymentsToVerify = countPaymentsToVerify(state.orders)
   const lowStock = countLowStockProducts(
@@ -923,9 +1042,14 @@ function PanelLayout() {
     inventory: lowStock,
   }
 
+  function handleLogout() {
+    setIsSidebarOpen(false)
+    logout()
+  }
+
   return (
     <div className="panel-shell">
-      <aside className="panel-sidebar">
+      <aside className={`panel-sidebar ${isSidebarOpen ? 'is-open' : ''}`}>
         <div className="panel-sidebar__top">
           <div className="brand-lockup">
             <div className="brand-mark">TN</div>
@@ -934,11 +1058,25 @@ function PanelLayout() {
               <span>{getRoleLabel(currentUser?.role ?? 'seller')}</span>
             </div>
           </div>
+          <button
+            type="button"
+            className="panel-close-button"
+            aria-label="Cerrar menu del panel"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            Cerrar
+          </button>
         </div>
 
         <nav className="panel-nav">
           {PANEL_LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.to === '/panel'} className="panel-link">
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === '/panel'}
+              className="panel-link"
+              onClick={() => setIsSidebarOpen(false)}
+            >
               <span>{link.label}</span>
               {link.badge ? <span className="counter-badge">{badges[link.badge]}</span> : null}
             </NavLink>
@@ -948,17 +1086,40 @@ function PanelLayout() {
         <div className="panel-sidebar__footer">
           <p>Ruta actual: {location.pathname}</p>
           <div className="section-actions">
-            <Link to="/" className="button ghost small">
+            <Link to="/" className="button ghost small" onClick={() => setIsSidebarOpen(false)}>
               Ver tienda
             </Link>
-            <button type="button" className="button ghost small" onClick={logout}>
-              Cerrar sesión
+            <button type="button" className="button ghost small" onClick={handleLogout}>
+              Cerrar sesion
             </button>
           </div>
         </div>
       </aside>
 
+      {isSidebarOpen ? (
+        <button
+          type="button"
+          className="panel-backdrop"
+          aria-label="Cerrar menu lateral"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      ) : null}
+
       <main className="panel-main">
+        <div className="panel-mobile-bar">
+          <button
+            type="button"
+            className="button ghost small"
+            aria-expanded={isSidebarOpen}
+            onClick={() => setIsSidebarOpen((current) => !current)}
+          >
+            Menu
+          </button>
+          <div className="panel-mobile-bar__copy">
+            <strong>Panel Terranegra</strong>
+            <span>{getRoleLabel(currentUser?.role ?? 'seller')}</span>
+          </div>
+        </div>
         <Outlet />
       </main>
     </div>
