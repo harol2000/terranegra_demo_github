@@ -174,6 +174,7 @@ function PublicLayout() {
       ? 'Mi cuenta'
       : 'Panel'
     : 'Login demo'
+  const footerLinks = [...PUBLIC_LINKS.slice(0, 4), { label: 'Carrito', to: '/carrito' }, { label: accountLabel, to: accountPath }]
 
   function handleLogout() {
     setIsMobileMenuOpen(false)
@@ -316,35 +317,74 @@ function PublicLayout() {
       </main>
 
       <footer className="site-footer">
-        <div className="container footer-grid">
-          <div>
-            <div className="brand-lockup footer-brand">
-              <div className="brand-mark">TN</div>
-              <div>
-                <strong>{state.config.businessName}</strong>
-                <span>Demo comercial sin backend real</span>
+        <div className="container">
+          <div className="site-footer__panel">
+            <div className="footer-grid">
+              <div className="footer-card footer-card--brand">
+                <div className="brand-lockup footer-brand">
+                  <div className="brand-mark">TN</div>
+                  <div>
+                    <strong>{state.config.businessName}</strong>
+                    <span>Demo comercial sin backend real</span>
+                  </div>
+                </div>
+                <p>
+                  Tienda demo, checkout por WhatsApp, inventario, kardex y panel vendedor en una
+                  sola maqueta navegable para presentar la experiencia completa.
+                </p>
+                <div className="footer-tags">
+                  <span className="footer-tag">Tienda demo</span>
+                  <span className="footer-tag">Inventario</span>
+                  <span className="footer-tag">Kardex</span>
+                  <span className="footer-tag">Panel vendedor</span>
+                </div>
+              </div>
+
+              <div className="footer-card">
+                <span className="footer-kicker">Canales demo</span>
+                <h3>Contacto y cobro</h3>
+                <div className="footer-info-list">
+                  <FooterInfoItem icon="whatsapp" label="WhatsApp" value={`+${state.config.whatsapp}`} />
+                  <FooterInfoItem icon="wallet" label="Yape" value={state.config.yapeNumber} />
+                  <FooterInfoItem icon="pin" label="Direccion" value={state.config.address} />
+                </div>
+              </div>
+
+              <div className="footer-card">
+                <span className="footer-kicker">Explora la demo</span>
+                <h3>Accesos rápidos</h3>
+                <div className="footer-link-grid">
+                  {footerLinks.map((link) => (
+                    <Link key={`${link.to}-${link.label}`} to={link.to} className="footer-link-chip">
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="footer-card">
+                <span className="footer-kicker">Usuarios demo</span>
+                <h3>Perfiles de prueba</h3>
+                <div className="footer-user-list">
+                  {DEMO_CREDENTIALS.map((credential) => (
+                    <article key={credential.email} className="footer-user-card">
+                      <div className="footer-user-card__icon">
+                        <FooterIcon name={credential.role === 'Admin' ? 'shield' : credential.role === 'Vendedor' ? 'briefcase' : 'user'} />
+                      </div>
+                      <div className="footer-user-card__copy">
+                        <span>{credential.role}</span>
+                        <strong>{credential.email}</strong>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
             </div>
-            <p>
-              Esta version es una maqueta navegable para validar flujos de tienda web, pedidos,
-              inventario, kardex y panel vendedor.
-            </p>
-          </div>
 
-          <div>
-            <h3>Canales demo</h3>
-            <p>WhatsApp: +{state.config.whatsapp}</p>
-            <p>Yape: {state.config.yapeNumber}</p>
-            <p>Direccion: {state.config.address}</p>
-          </div>
-
-          <div>
-            <h3>Usuarios</h3>
-            {DEMO_CREDENTIALS.map((credential) => (
-              <p key={credential.email}>
-                {credential.role}: {credential.email}
-              </p>
-            ))}
+            <div className="site-footer__bottom">
+              <p>Demo estática en React + localStorage, lista para GitHub Pages.</p>
+              <p>Sin backend, sin pagos reales y sin conexión a base de datos.</p>
+            </div>
           </div>
         </div>
       </footer>
@@ -1844,7 +1884,15 @@ function ProductsPage() {
                 const category = state.categories.find((item) => item.id === product.categoryId)
                 return (
                   <tr key={product.id}>
-                    <td>{product.name}</td>
+                    <td>
+                      <div className="table-product">
+                        <img src={product.image} alt={product.name} className="table-product__image" />
+                        <div className="table-product__copy">
+                          <strong>{product.name}</strong>
+                          <span>{product.sku}</span>
+                        </div>
+                      </div>
+                    </td>
                     <td>{category?.name}</td>
                     <td>{formatCurrency(product.price)}</td>
                     <td>{product.offer?.enabled ? formatCurrency(product.offer.price) : 'Sin oferta'}</td>
@@ -2612,6 +2660,49 @@ function SummaryRow({ label, value, emphasis = false }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  )
+}
+
+function FooterInfoItem({ icon, label, value }) {
+  return (
+    <div className="footer-info-item">
+      <div className="footer-info-item__icon">
+        <FooterIcon name={icon} />
+      </div>
+      <div className="footer-info-item__copy">
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+    </div>
+  )
+}
+
+function FooterIcon({ name }) {
+  const icons = {
+    whatsapp: (
+      <path d="M8.5 18.5 9.3 15A6.5 6.5 0 1 1 15 17.7c-1 .55-2.14.8-3.28.73L8.5 18.5Zm3.27-11A4.98 4.98 0 0 0 9.1 16l.18.3-1.02 1.7 1.94-.5.28.16a4.99 4.99 0 1 0 1.29-10.16Zm2.84 6.14c-.16-.08-.95-.47-1.1-.53-.14-.05-.24-.08-.34.08s-.39.53-.48.64c-.09.1-.18.12-.34.04-.95-.47-1.57-.84-2.2-1.91-.17-.3.17-.27.47-1 .05-.11.03-.2-.01-.28l-.5-1.18c-.1-.24-.2-.2-.34-.2h-.3c-.11 0-.29.04-.44.2a1.9 1.9 0 0 0-.58 1.4c0 .82.6 1.62.68 1.73.08.1 1.18 1.8 2.85 2.53 1.06.46 1.47.5 2 .43.33-.05.95-.39 1.09-.77.13-.38.13-.7.1-.76-.04-.06-.14-.1-.3-.18Z" />
+    ),
+    wallet: (
+      <path d="M6.5 7.5A1.5 1.5 0 0 1 8 6h8.5A2.5 2.5 0 0 1 19 8.5v7a2.5 2.5 0 0 1-2.5 2.5H8A2.5 2.5 0 0 1 5.5 15.5v-8Zm2-.25a.75.75 0 0 0 0 1.5H17V8.5a1 1 0 0 0-1-1H8.5Zm8.5 3h-4a1.5 1.5 0 0 0 0 3h4v-3Zm-4 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z" />
+    ),
+    pin: (
+      <path d="M12 19s5.5-4.84 5.5-9A5.5 5.5 0 1 0 6.5 10c0 4.16 5.5 9 5.5 9Zm0-6.5A2.5 2.5 0 1 1 12 7a2.5 2.5 0 0 1 0 5.5Z" />
+    ),
+    user: (
+      <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Zm0 1.5c-2.94 0-5.5 1.42-5.5 3.17 0 .46.37.83.83.83h9.34a.83.83 0 0 0 .83-.83c0-1.75-2.56-3.17-5.5-3.17Z" />
+    ),
+    briefcase: (
+      <path d="M9 6.5A1.5 1.5 0 0 1 10.5 5h3A1.5 1.5 0 0 1 15 6.5V8h2A2 2 0 0 1 19 10v5.5A2.5 2.5 0 0 1 16.5 18h-9A2.5 2.5 0 0 1 5 15.5V10a2 2 0 0 1 2-2h2V6.5Zm1.5 0V8h3V6.5h-3Zm-4 4V15.5c0 .55.45 1 1 1h9a1 1 0 0 0 1-1v-5H6.5Z" />
+    ),
+    shield: (
+      <path d="M12 4.5 18 7v4.58c0 3.26-2.07 6.31-6 7.92-3.93-1.61-6-4.66-6-7.92V7l6-2.5Zm0 3.05-3.5 1.46v2.57c0 2.28 1.37 4.4 3.5 5.58 2.13-1.18 3.5-3.3 3.5-5.58V9.01L12 7.55Zm-.7 6.03 3.65-3.64-1.06-1.06-2.6 2.6-1.24-1.23-1.06 1.06 2.31 2.27Z" />
+    ),
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      {icons[name] ?? icons.user}
+    </svg>
   )
 }
 

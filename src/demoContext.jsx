@@ -18,6 +18,159 @@ import {
 const STATE_KEY = 'terranegra_demo_state_v1'
 const SESSION_KEY = 'terranegra_demo_session_v1'
 const DemoContext = createContext(null)
+const retiredProductMap = {
+  'prod-choco-mani': {
+    nextId: 'prod-choco-mani-60',
+    nextName: 'Chocolate maní 60g',
+  },
+  'prod-choco-kiwicha': {
+    nextId: 'prod-choco-kiwicha-60',
+    nextName: 'Chocolate kiwicha 60g',
+  },
+}
+const retiredProductIds = new Set(Object.keys(retiredProductMap))
+
+function mergeSeedCollection(storedItems, fallbackItems) {
+  const safeStoredItems = Array.isArray(storedItems) ? storedItems : []
+  const safeFallbackItems = Array.isArray(fallbackItems) ? fallbackItems : []
+  const knownIds = new Set(safeStoredItems.map((item) => item?.id).filter(Boolean))
+
+  return [...safeStoredItems, ...safeFallbackItems.filter((item) => item?.id && !knownIds.has(item.id))]
+}
+
+function resolveSequence(storedValue, fallbackValue) {
+  return Math.max(Number(storedValue) || 0, Number(fallbackValue) || 0)
+}
+
+function migrateLegacyProductId(productId) {
+  return retiredProductMap[productId]?.nextId ?? productId
+}
+
+function migrateLegacyProductName(productId, name) {
+  return retiredProductMap[productId]?.nextName ?? name
+}
+
+function normalizeKardex(kardex) {
+  const safeKardex = Array.isArray(kardex) ? kardex : []
+
+  return safeKardex.map((movement) => ({
+    ...movement,
+    productId: migrateLegacyProductId(movement.productId),
+  }))
+}
+
+function normalizeCarts(carts) {
+  const safeCarts = carts && typeof carts === 'object' ? carts : {}
+
+  return Object.fromEntries(
+    Object.entries(safeCarts).map(([cartKey, entries]) => {
+      const bucket = new Map()
+
+      ;(Array.isArray(entries) ? entries : []).forEach((entry) => {
+        const productId = migrateLegacyProductId(entry.productId)
+        const quantity = Number(entry.quantity) || 0
+
+        if (!productId || quantity <= 0) {
+          return
+        }
+
+        bucket.set(productId, (bucket.get(productId) ?? 0) + quantity)
+      })
+
+      return [
+        cartKey,
+        Array.from(bucket.entries()).map(([productId, quantity]) => ({
+          productId,
+          quantity,
+        })),
+      ]
+    }),
+  )
+}
+
+function syncSeededProducts(products, fallbackProducts) {
+  const seedProducts = new Map(fallbackProducts.map((product) => [product.id, product]))
+
+  return products.map((product) => {
+    const seedProduct = seedProducts.get(product.id)
+
+    if (!seedProduct) {
+      return product
+    }
+
+    return {
+      ...product,
+      name: seedProduct.name,
+      image: seedProduct.image,
+      description: seedProduct.description,
+    }
+  })
+}
+
+function normalizeOrders(orders, fallbackProducts = []) {
+  const safeOrders = Array.isArray(orders) ? orders : []
+  const seedProducts = new Map(fallbackProducts.map((product) => [product.id, product]))
+
+  return safeOrders.map((order) => ({
+    ...order,
+    items: Array.isArray(order.items)
+      ? order.items.map((item) => {
+          const productId = migrateLegacyProductId(item.productId)
+          const seedProduct = seedProducts.get(productId)
+
+          return {
+            ...item,
+            productId,
+            name: seedProduct?.name ?? migrateLegacyProductName(item.productId, item.name),
+          }
+        })
+      : [],
+  }))
+}
+
+function mergeStoredState(storedState, fallback) {
+  if (!storedState || typeof storedState !== 'object') {
+    return fallback
+  }
+
+  const normalizedProducts = syncSeededProducts(
+    mergeSeedCollection(storedState.products, fallback.products).filter(
+      (product) => !retiredProductIds.has(product.id),
+    ),
+    fallback.products,
+  )
+
+  return {
+    ...fallback,
+    ...storedState,
+    users: mergeSeedCollection(storedState.users, fallback.users),
+    categories: mergeSeedCollection(storedState.categories, fallback.categories),
+    products: normalizedProducts,
+    lots: mergeSeedCollection(storedState.lots, fallback.lots).filter(
+      (lot) => !retiredProductIds.has(lot.productId),
+    ),
+    orders: normalizeOrders(Array.isArray(storedState.orders) ? storedState.orders : fallback.orders, normalizedProducts),
+    kardex: normalizeKardex(Array.isArray(storedState.kardex) ? storedState.kardex : fallback.kardex),
+    carts: normalizeCarts({
+      ...fallback.carts,
+      ...(storedState.carts ?? {}),
+    }),
+    config: {
+      ...fallback.config,
+      ...(storedState.config ?? {}),
+    },
+    meta: {
+      ...fallback.meta,
+      ...(storedState.meta ?? {}),
+      orderSequence: resolveSequence(storedState.meta?.orderSequence, fallback.meta.orderSequence),
+      entrySequence: resolveSequence(storedState.meta?.entrySequence, fallback.meta.entrySequence),
+      productSequence: resolveSequence(storedState.meta?.productSequence, fallback.meta.productSequence),
+      categorySequence: resolveSequence(storedState.meta?.categorySequence, fallback.meta.categorySequence),
+      lotSequence: resolveSequence(storedState.meta?.lotSequence, fallback.meta.lotSequence),
+      kardexSequence: resolveSequence(storedState.meta?.kardexSequence, fallback.meta.kardexSequence),
+    },
+  }
+}
 
 function readInitialStore() {
   const fallback = createDemoState()
@@ -34,7 +187,7 @@ function readInitialStore() {
   try {
     const storedState = window.localStorage.getItem(STATE_KEY)
     if (storedState) {
-      state = JSON.parse(storedState)
+      state = mergeStoredState(JSON.parse(storedState), fallback)
     } else {
       window.localStorage.setItem(STATE_KEY, JSON.stringify(fallback))
     }

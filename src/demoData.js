@@ -41,6 +41,10 @@ function buildProductImage(title, accent, accentSoft) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
 
+function buildPublicImagePath(filename) {
+  return `${import.meta.env.BASE_URL}${filename}`
+}
+
 export const DEMO_CREDENTIALS = [
   {
     role: 'Cliente',
@@ -191,6 +195,7 @@ export function createDemoState() {
     offer = null,
     description,
     sku,
+    imageFile = '',
   }) => {
     const [accent, accentSoft] = palette[categoryId]
 
@@ -219,7 +224,9 @@ export function createDemoState() {
             startDate: '',
             endDate: '',
           },
-      image: buildProductImage(name, accent, accentSoft),
+      image: imageFile
+        ? buildPublicImagePath(imageFile)
+        : buildProductImage(name, accent, accentSoft),
     }
   }
 
@@ -235,91 +242,101 @@ export function createDemoState() {
       offer: { price: 16.9, startDate: shiftDay(-2), endDate: shiftDay(12) },
       description: 'Tueste medio con notas a cacao y frutos secos.',
       sku: 'TN-CAF-250',
+      imageFile: 'terranegra-cafe-molido-250g.png',
     }),
     createProduct({
       id: 'prod-cafe-500',
-      name: 'Café molido 500g',
+      name: 'Café molido 250g',
       categoryId: 'cat-cafe',
       price: 31.9,
       stock: 18,
       minStock: 8,
       featured: true,
-      description: 'Formato familiar para cafetería o consumo intenso.',
+      description: 'Empaque referencial de café molido usado en la demo comercial.',
       sku: 'TN-CAF-500',
+      imageFile: 'terranegra-cafe-molido-250g.png',
     }),
     createProduct({
       id: 'prod-choco-naranja',
-      name: 'Chocolate naranja 70%',
+      name: 'Chocolate café 70g',
       categoryId: 'cat-chocolate',
       price: 14.5,
       stock: 30,
       minStock: 10,
       featured: true,
       offer: { price: 12.9, startDate: shiftDay(-1), endDate: shiftDay(20) },
-      description: 'Cítrico aromático y final largo de cacao.',
+      description: 'Barra con notas tostadas y perfil aromático de café.',
       sku: 'TN-CHO-NAR',
+      imageFile: 'terranegra-chocolate-cafe-70g.png',
     }),
     createProduct({
       id: 'prod-choco-pasas',
-      name: 'Chocolate con pasas 70%',
+      name: 'Chocolate arándano 70g',
       categoryId: 'cat-chocolate',
       price: 13.9,
       stock: 22,
       minStock: 8,
-      description: 'Textura suave con contraste dulce natural.',
+      description: 'Chocolate con arándano y contraste frutal suave.',
       sku: 'TN-CHO-PAS',
+      imageFile: 'terranegra-chocolate-arandano-70g.png',
     }),
     createProduct({
       id: 'prod-choco-negro',
-      name: 'Chocolate negro 70%',
+      name: 'Chocolate bitter 70g',
       categoryId: 'cat-chocolate',
       price: 12.9,
       stock: 40,
       minStock: 10,
-      description: 'La barra insignia de la marca para consumo diario.',
+      description: 'Barra intensa de cacao con perfil bitter clásico.',
       sku: 'TN-CHO-NEG',
+      imageFile: 'terranegra-chocolate-bitter-70g.png',
     }),
     createProduct({
-      id: 'prod-choco-mani',
-      name: 'Chocolate con maní 70%',
+      id: 'prod-choco-kiwicha-60',
+      name: 'Chocolate kiwicha 60g',
       categoryId: 'cat-chocolate',
-      price: 13.5,
-      stock: 16,
-      minStock: 10,
-      offer: { price: 11.8, startDate: shiftDay(-3), endDate: shiftDay(8) },
-      description: 'Crujiente, intenso y perfecto para impulso en caja.',
-      sku: 'TN-CHO-MAN',
-    }),
-    createProduct({
-      id: 'prod-choco-kiwicha',
-      name: 'Chocolate con kiwicha',
-      categoryId: 'cat-chocolate',
-      price: 14.2,
-      stock: 12,
+      price: 12.8,
+      stock: 18,
       minStock: 8,
-      description: 'Chocolate con cereal andino tostado y textura liviana.',
-      sku: 'TN-CHO-KIW',
+      featured: true,
+      description: 'Barra de 60g con kiwicha crocante y perfil suave de cacao.',
+      sku: 'TN-CHO-KIW-60',
+      imageFile: 'terranegra-chocolate-kiwicha-60g.png',
+    }),
+    createProduct({
+      id: 'prod-choco-mani-60',
+      name: 'Chocolate maní 60g',
+      categoryId: 'cat-chocolate',
+      price: 12.6,
+      stock: 20,
+      minStock: 8,
+      offer: { price: 11.4, startDate: shiftDay(-2), endDate: shiftDay(14) },
+      description: 'Barra de 60g con maní tostado y textura crocante para impulso.',
+      sku: 'TN-CHO-MAN-60',
+      imageFile: 'terranegra-chocolate-mani-60g.png',
     }),
     createProduct({
       id: 'prod-nibs-250',
-      name: 'Nibs de cacao 250g',
+      name: 'Polvo de cacao 250g',
       categoryId: 'cat-cacao',
       price: 19.9,
       stock: 20,
       minStock: 8,
       featured: true,
-      description: 'Snack puro, crocante y alto en cacao.',
+      description: 'Polvo de cacao para bebidas, repostería y cocina diaria.',
       sku: 'TN-NIB-250',
+      imageFile: 'terranegra-polvo-cacao-250g.png',
     }),
     createProduct({
       id: 'prod-nibs-500',
-      name: 'Nibs de cacao 500g',
+      name: 'Pasta de cacao 90g',
       categoryId: 'cat-cacao',
       price: 34.9,
       stock: 7,
       minStock: 6,
-      description: 'Formato para cocina, cafés y toppings de alto giro.',
+      description: 'Pasta de cacao para cocina, bebidas y preparaciones intensas.',
       sku: 'TN-NIB-500',
+      imageFile: 'terranegra-pasta-cacao-90g.png',
     }),
   ]
 
@@ -332,8 +349,8 @@ export function createDemoState() {
     { id: 'lot-006', productId: 'prod-choco-pasas', code: 'CHPAS-A1', quantity: 22, expiresAt: shiftDay(84), cost: 6.6 },
     { id: 'lot-007', productId: 'prod-choco-negro', code: 'CHNEG-A1', quantity: 24, expiresAt: shiftDay(110), cost: 5.9 },
     { id: 'lot-008', productId: 'prod-choco-negro', code: 'CHNEG-B1', quantity: 16, expiresAt: shiftDay(134), cost: 6.0 },
-    { id: 'lot-009', productId: 'prod-choco-mani', code: 'CHMAN-A1', quantity: 16, expiresAt: shiftDay(70), cost: 6.1 },
-    { id: 'lot-010', productId: 'prod-choco-kiwicha', code: 'CHKIW-A1', quantity: 12, expiresAt: shiftDay(18), cost: 6.4 },
+    { id: 'lot-013', productId: 'prod-choco-kiwicha-60', code: 'CHKIW60-A1', quantity: 18, expiresAt: shiftDay(90), cost: 5.8 },
+    { id: 'lot-014', productId: 'prod-choco-mani-60', code: 'CHMAN60-A1', quantity: 20, expiresAt: shiftDay(96), cost: 5.7 },
     { id: 'lot-011', productId: 'prod-nibs-250', code: 'NIB250-A1', quantity: 20, expiresAt: shiftDay(160), cost: 10.1 },
     { id: 'lot-012', productId: 'prod-nibs-500', code: 'NIB500-A1', quantity: 7, expiresAt: shiftDay(9), cost: 17.6 },
   ]
@@ -388,7 +405,7 @@ export function createDemoState() {
       items: [
         {
           productId: 'prod-cafe-500',
-          name: 'Café molido 500g',
+          name: 'Café molido 250g',
           categoryId: 'cat-cafe',
           quantity: 1,
           unitPrice: 31.9,
@@ -396,7 +413,7 @@ export function createDemoState() {
         },
         {
           productId: 'prod-choco-negro',
-          name: 'Chocolate negro 70%',
+          name: 'Chocolate bitter 70g',
           categoryId: 'cat-chocolate',
           quantity: 2,
           unitPrice: 12.9,
@@ -404,7 +421,7 @@ export function createDemoState() {
         },
         {
           productId: 'prod-nibs-250',
-          name: 'Nibs de cacao 250g',
+          name: 'Polvo de cacao 250g',
           categoryId: 'cat-cacao',
           quantity: 1,
           unitPrice: 19.9,
@@ -442,8 +459,8 @@ export function createDemoState() {
           subtotal: 16.9,
         },
         {
-          productId: 'prod-choco-mani',
-          name: 'Chocolate con maní 70%',
+          productId: 'prod-choco-mani-60',
+          name: 'Chocolate maní 60g',
           categoryId: 'cat-chocolate',
           quantity: 2,
           unitPrice: 11.8,
@@ -474,7 +491,7 @@ export function createDemoState() {
       items: [
         {
           productId: 'prod-choco-naranja',
-          name: 'Chocolate naranja 70%',
+          name: 'Chocolate café 70g',
           categoryId: 'cat-chocolate',
           quantity: 1,
           unitPrice: 12.9,
@@ -482,7 +499,7 @@ export function createDemoState() {
         },
         {
           productId: 'prod-nibs-250',
-          name: 'Nibs de cacao 250g',
+          name: 'Polvo de cacao 250g',
           categoryId: 'cat-cacao',
           quantity: 1,
           unitPrice: 19.9,
@@ -513,7 +530,7 @@ export function createDemoState() {
       items: [
         {
           productId: 'prod-choco-pasas',
-          name: 'Chocolate con pasas 70%',
+          name: 'Chocolate arándano 70g',
           categoryId: 'cat-chocolate',
           quantity: 1,
           unitPrice: 13.9,
@@ -521,7 +538,7 @@ export function createDemoState() {
         },
         {
           productId: 'prod-choco-negro',
-          name: 'Chocolate negro 70%',
+          name: 'Chocolate bitter 70g',
           categoryId: 'cat-chocolate',
           quantity: 1,
           unitPrice: 12.9,
@@ -552,7 +569,7 @@ export function createDemoState() {
       items: [
         {
           productId: 'prod-choco-naranja',
-          name: 'Chocolate naranja 70%',
+          name: 'Chocolate café 70g',
           categoryId: 'cat-chocolate',
           quantity: 2,
           unitPrice: 14.5,
@@ -689,9 +706,9 @@ export function createDemoState() {
     meta: {
       orderSequence: 153,
       entrySequence: 41,
-      productSequence: 10,
+      productSequence: 12,
       categorySequence: 5,
-      lotSequence: 13,
+      lotSequence: 15,
       kardexSequence: 88,
     },
   }
