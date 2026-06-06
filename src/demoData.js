@@ -89,21 +89,6 @@ export const PANEL_LINKS = [
   { label: 'Configuración', to: '/panel/configuracion', key: 'settings' },
 ]
 
-export const SERVICE_ITEMS = [
-  {
-    title: 'Venta web guiada',
-    description: 'Catálogo, carrito, checkout por WhatsApp y panel cliente para ver estados del pedido.',
-  },
-  {
-    title: 'Inventario por lotes',
-    description: 'Stock mínimo, alertas de vencimiento, entradas de compra y salidas automáticas por venta.',
-  },
-  {
-    title: 'Kardex trazable',
-    description: 'Cada movimiento deja referencia, usuario, lote y stock antes/después para la demo comercial.',
-  },
-]
-
 export const BLOG_POSTS = [
   {
     id: 'blog-1',

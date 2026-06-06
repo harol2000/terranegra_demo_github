@@ -16,7 +16,6 @@ import {
   PANEL_LINKS,
   PAYMENT_METHODS,
   PUBLIC_LINKS,
-  SERVICE_ITEMS,
 } from './demoData'
 import { useDemo } from './demoContext'
 import {
@@ -435,24 +434,6 @@ function HomePage() {
                 <li>El pedido avanza hasta entregado o completado.</li>
               </ol>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-block">
-        <div className="container">
-          <SectionHeading
-            title="Lo que la dueña puede validar en esta demo"
-            subtitle="Cada click simula un flujo real sin depender de Laravel, PHP o MySQL."
-          />
-          <div className="feature-grid">
-            {SERVICE_ITEMS.map((item) => (
-              <article key={item.title} className="surface-card">
-                <span className="pill pill--soft">Operación</span>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </article>
-            ))}
           </div>
         </div>
       </section>
